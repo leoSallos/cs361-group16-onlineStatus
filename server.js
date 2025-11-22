@@ -49,6 +49,25 @@ app.get("/list", function(req, res){
 
 // ping online
 app.get("/online/:userID", function(req, res){
+    console.log("User online ping.");
+
+    // check if user exists
+    const userID = req.params.userID;
+    if (userID >= userList.length){
+        console.error("User ID does not exist.");
+        res.status(404).send("User does not exist.");
+        return;
+    }
+
+    // update user data
+    const currDate = new Date();
+    const currTime = currDate.getTime();
+    userList[i].lastOnline = currTime;
+    userList[i].status = "online"
+
+    // send response
+    console.log("Sending success");
+    res.status(204);
 });
 
 // post new user to database

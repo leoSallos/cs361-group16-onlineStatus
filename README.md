@@ -13,6 +13,7 @@ the user will get marked offline.
 - no body
 
 `GET /online/<userID>`
+- no body
 
 `POST /new`
 
@@ -27,7 +28,7 @@ the user will get marked offline.
 {
     users: [
         {
-            name: <username>
+            name: <username>,
             status: <user status: "online"/"offline">
         }
     ]
@@ -35,5 +36,7 @@ the user will get marked offline.
 ```
 
 `GET /online/<userID>`
+- `404`: User ID was not found, no body.
+- `204`: User online status was successfuly updated, no body.
 
 `POST /new`
