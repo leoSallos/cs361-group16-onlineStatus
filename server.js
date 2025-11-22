@@ -30,6 +30,21 @@ app.get("/", function(req, res) {
 
 // get user online status
 app.get("/list", function(req, res){
+    console.log("User list request.");
+
+    // create list to send
+    var sendList = [];
+    for (var i = 0; i < userList.length; i++){
+        const user = {
+            name: userList[i].name,
+            status: userList[i].status
+        };
+        sendList.push(user);
+    }
+
+    // send list
+    console.log("Sending success");
+    res.status(200).json({users: sendList});
 });
 
 // ping online

@@ -7,8 +7,10 @@ the user will get marked offline.
 ### Requests
 
 `GET /`
+- no body
 
 `GET /list`
+- no body
 
 `GET /online/<userID>`
 
@@ -17,8 +19,20 @@ the user will get marked offline.
 ### Responses
 
 `GET /`
+- `204`: Status if there is a successful ping, no body.
 
 `GET /list`
+- `200`: Sends body in the following format:
+```
+{
+    users: [
+        {
+            name: <username>
+            status: <user status: "online"/"offline">
+        }
+    ]
+}
+```
 
 `GET /online/<userID>`
 
