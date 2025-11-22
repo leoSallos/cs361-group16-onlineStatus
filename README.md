@@ -16,6 +16,12 @@ the user will get marked offline.
 - no body
 
 `POST /new`
+- send request body in the following format:
+```
+{
+    name: <username>
+}
+```
 
 ### Responses
 
@@ -40,3 +46,10 @@ the user will get marked offline.
 - `204`: User online status was successfuly updated, no body.
 
 `POST /new`
+- `400`: Improper request body format, no body.
+- `200`: Response is in the following format:
+```
+{
+    id: <new user id>
+}
+```

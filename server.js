@@ -72,6 +72,30 @@ app.get("/online/:userID", function(req, res){
 
 // post new user to database
 app.post("/new", function(req, res){
+    console.log("New user post.");
+
+    // get post data
+    const data = req.body;
+    if (!data.name){
+        console.error("Improper request body format");
+        res.status(400).send("Improper request body format.");
+        return;
+    }
+    
+    // add to user list
+    const currDate = new Date();
+    const currTime = currDate.getTime();
+    const newUser = {
+        name: data.name,
+        lastOnline: currTime,
+        status: "online",
+    };
+    const userID = userList.length;
+    userList.push(newUser);
+
+    // send response
+    console.log("Sending success");
+    res.status(200).json({id: userID});
 });
 
 // start server listening
