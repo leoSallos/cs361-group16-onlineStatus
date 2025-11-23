@@ -1,9 +1,10 @@
 var fs = require("fs").promises
-var express = require("express")
-var app = express()
+const {setTimeout, setInterval} = require('timers');
+var express = require("express");
+var app = express();
 app.use(express.static(__dirname));
-app.use(express.json())
-const port = 8007
+app.use(express.json());
+const port = 8007;
 
 //
 // Middleware
@@ -107,10 +108,64 @@ app.listen(port, function(err){
     }
 });
 
-// write update to file
-async function writeUserList(){
+// check all users last ping
+function updateStatus(){
+    // get time values
+    const currDate = new Date();
+    const currTime = currDate.getTime();
+    const lastMinute = currTime - 60;
+
+    // update status of each user
+    for (var i = 0; i < userList.length; i++){
+        if (userList[i].lastOnline < lastMinute){
+            userList[i].status = "offline";
+        } else {
+            userList[i].status = "online";
+        }
+    }
+
+    console.log("Statuses updated.");
 }
 
-// check last pings
-var userList = [];
-// TODO: Add 1min timer
+// write update to file
+async function writeUserList(){
+    const dataString = await JSON.stringify({users: userList});
+    try {
+        await fs.writeFile(__dirname + "/data.json", dataString, "utf8");
+    } catch (err) {
+        console.error("File write failed: " + err);
+        return;
+    }
+    console.log("Data save success");
+}
+
+// get initial data
+async function getUserList(){
+    // get data from file
+    try {
+        var dataString = await fs.readFile(__dirname + "/data.json", "utf8");
+    } catch (err) {
+        console.error("No data file found.");
+        var dataString = "{\"users\": []}";
+    }
+
+    console.log("Data init complete.");
+
+    // return userList
+    const object = await JSON.parse(dataString);
+    return object.users;
+}
+
+async function init(){
+    userList = await getUserList();
+}
+
+var userList;
+init();
+
+// 1 min timer
+const oneMin = 1000 * 60;
+const interval = setInterval(() => {
+    updateStatus();
+    writeUserList();
+}, oneMin);
