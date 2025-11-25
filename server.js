@@ -26,7 +26,7 @@ app.use(function (req, res, next) {
 // server ping
 app.get("/", function(req, res) {
     console.log("Ping recieved\n")
-    res.status(204);
+    res.sendStatus(204);
 });
 
 // get user online status
@@ -71,7 +71,7 @@ app.get("/online/:userID", function(req, res){
 
     // send response
     console.log("Sending success\n");
-    res.status(204);
+    res.sendStatus(204);
 });
 
 // post new user to database
