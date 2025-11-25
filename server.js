@@ -25,7 +25,7 @@ app.use(function (req, res, next) {
 
 // server ping
 app.get("/", function(req, res) {
-    console.log("Ping recieved")
+    console.log("Ping recieved\n")
     res.status(204);
 });
 
@@ -44,7 +44,7 @@ app.get("/list", function(req, res){
     }
 
     // send list
-    console.log("Sending success");
+    console.log("Sending success\n");
     res.status(200).json({users: sendList});
 });
 
@@ -52,22 +52,25 @@ app.get("/list", function(req, res){
 app.get("/online/:userID", function(req, res){
     console.log("User online ping.");
 
-    // check if user exists
+    // log request user
     const userID = req.params.userID;
+    console.log("Recieved from:", userID);
+    
+    // check if user exists
     if (userID >= userList.length){
         console.error("User ID does not exist.");
-        res.status(404).send("User does not exist.");
+        res.status(404).send("User does not exist.\n");
         return;
     }
 
     // update user data
     const currDate = new Date();
     const currTime = currDate.getTime();
-    userList[i].lastOnline = currTime;
-    userList[i].status = "online"
+    userList[userID].lastOnline = currTime;
+    userList[userID].status = "online"
 
     // send response
-    console.log("Sending success");
+    console.log("Sending success\n");
     res.status(204);
 });
 
@@ -79,9 +82,12 @@ app.post("/new", function(req, res){
     const data = req.body;
     if (!data.name){
         console.error("Improper request body format");
-        res.status(400).send("Improper request body format.");
+        res.status(400).send("Improper request body format.\n");
         return;
     }
+
+    // log request data
+    console.log("Recieved:", data);
     
     // add to user list
     const currDate = new Date();
@@ -91,29 +97,25 @@ app.post("/new", function(req, res){
         lastOnline: currTime,
         status: "online",
     };
-    const userID = userList.length;
     userList.push(newUser);
+    const userID = userList.length - 1;
 
     // send response
-    console.log("Sending success");
+    console.log("Sending success\n");
     res.status(200).json({id: userID});
 });
 
-// start server listening
-app.listen(port, function(err){
-    if (err){
-        throw err;
-    } else {
-        console.log("Server listening on port " + port);
-    }
-});
+//
+// Internal Logic
+//
 
 // check all users last ping
 function updateStatus(){
     // get time values
     const currDate = new Date();
     const currTime = currDate.getTime();
-    const lastMinute = currTime - 60;
+    const oneMin = 1000 * 60;
+    const lastMinute = currTime - oneMin;
 
     // update status of each user
     for (var i = 0; i < userList.length; i++){
@@ -124,7 +126,7 @@ function updateStatus(){
         }
     }
 
-    console.log("Statuses updated.");
+    console.log("Status updated.");
 }
 
 // write update to file
@@ -136,7 +138,7 @@ async function writeUserList(){
         console.error("File write failed: " + err);
         return;
     }
-    console.log("Data save success");
+    console.log("Data save success\n");
 }
 
 // get initial data
@@ -149,8 +151,6 @@ async function getUserList(){
         var dataString = "{\"users\": []}";
     }
 
-    console.log("Data init complete.");
-
     // return userList
     const object = await JSON.parse(dataString);
     return object.users;
@@ -158,6 +158,16 @@ async function getUserList(){
 
 async function init(){
     userList = await getUserList();
+    console.log("Data init complete:", userList);
+
+    // start server listening
+    app.listen(port, function(err){
+        if (err){
+            throw err;
+        } else {
+            console.log("Server listening on port " + port + "\n");
+        }
+    });
 }
 
 var userList;
