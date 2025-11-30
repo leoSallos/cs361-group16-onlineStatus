@@ -19,6 +19,11 @@ app.use(function (req, res, next) {
     next();
 });
 
+function getCurrentTime() {
+    let now = new Date();
+    return (`${now.getMonth()+1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`)
+}
+
 // 
 // Route Service
 //
@@ -126,7 +131,7 @@ function updateStatus(){
         }
     }
 
-    console.log("Status updated.");
+    console.log("Status updated ");
 }
 
 // write update to file
@@ -165,7 +170,7 @@ async function init(){
         if (err){
             throw err;
         } else {
-            console.log("Server listening on port " + port + "\n");
+            console.log(getCurrentTime()+" Server listening on port " + port + "\n");
         }
     });
 }
@@ -176,6 +181,7 @@ init();
 // 1 min timer
 const oneMin = 1000 * 60;
 const interval = setInterval(() => {
+    console.log("Server tick "+getCurrentTime())
     updateStatus();
     writeUserList();
 }, oneMin);
