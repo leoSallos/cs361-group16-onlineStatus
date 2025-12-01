@@ -19,6 +19,52 @@ app.use(function (req, res, next) {
     next();
 });
 
+function getCurrentTime() {
+    let now = new Date();
+    return (`${now.getMonth()+1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`)
+}
+
+// checks if this user is already in the list
+// if they are, returns their index. otherwise, returns -1
+function userExists(name) {
+    console.log("Checking for "+name)
+    for(let i = 0; i < userList.length; i++) {
+        let iu = userList[i];
+        let iuname = iu.name;
+        console.log("   ..."+iuname);
+        if (iuname == name) {
+            console.log("User "+name+" exists at "+i)
+            return i;
+        }
+    }
+    return -1;
+}
+
+function pushUser(name) {
+    let userIndex = userExists(name);
+
+    // create logging data
+    const currDate = new Date();
+    const currTime = currDate.getTime();
+    const newUser = {
+        name: name,
+        lastOnline: currTime,
+        status: "online",
+    };
+
+    //
+    if (userIndex === -1) {
+        console.log("Writing new user...")
+        userList.push(newUser);
+    }
+    else {
+        console.log("Overwriting existing user...")
+        userList[userIndex].lastOnline = currTime;
+        userList[userIndex].status = "online";
+    }
+    return true;
+}
+
 // 
 // Route Service
 //
@@ -90,15 +136,11 @@ app.post("/new", function(req, res){
     console.log("Recieved:", data);
     
     // add to user list
-    const currDate = new Date();
-    const currTime = currDate.getTime();
-    const newUser = {
-        name: data.name,
-        lastOnline: currTime,
-        status: "online",
-    };
-    userList.push(newUser);
+    pushUser(data.name)
     const userID = userList.length - 1;
+
+    // update the list now
+    writeUserList();
 
     // send response
     console.log("Sending success\n");
@@ -126,7 +168,7 @@ function updateStatus(){
         }
     }
 
-    console.log("Status updated.");
+    console.log("Status updated ");
 }
 
 // write update to file
@@ -165,7 +207,7 @@ async function init(){
         if (err){
             throw err;
         } else {
-            console.log("Server listening on port " + port + "\n");
+            console.log(getCurrentTime()+" Server listening on port " + port + "\n");
         }
     });
 }
@@ -176,6 +218,7 @@ init();
 // 1 min timer
 const oneMin = 1000 * 60;
 const interval = setInterval(() => {
+    console.log("Server tick "+getCurrentTime())
     updateStatus();
     writeUserList();
 }, oneMin);
