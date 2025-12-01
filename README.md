@@ -53,3 +53,18 @@ the user will get marked offline.
     id: <new user id>
 }
 ```
+This goes into your microservice server that you want to check status of.
+`POST /heartbeat`
+```
+'// Receive heartbeat from status service'
+app.post('/heartbeat', (req, res) => {
+  console.log('Heartbeat from status service:', req.body);
+  res.json({
+    status: 'ok',
+    service: 'achievement-service',
+    receivedAt: Date.now()
+  });
+});
+```
+ modify/add the line to reflect your localhost/hosts.
+const HEARTBEAT_URL = "http://localhost:8001/heartbeat";

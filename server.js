@@ -6,6 +6,9 @@ app.use(express.static(__dirname));
 app.use(express.json());
 const port = 8007;
 
+const HEARTBEAT_URL = "http://localhost:8001/heartbeat";
+let monitorServiceStatus = "offline";
+
 //
 // Middleware
 //
@@ -43,6 +46,11 @@ app.get("/list", function(req, res){
         sendList.push(user);
     }
 
+    sendList.push({
+        name: "Monitor Service",
+        status: monitorServiceStatus
+    });
+
     // send list
     console.log("Sending success\n");
     res.status(200).json({users: sendList});
@@ -72,37 +80,6 @@ app.get("/online/:userID", function(req, res){
     // send response
     console.log("Sending success\n");
     res.sendStatus(204);
-});
-
-// post new user to database
-app.post("/new", function(req, res){
-    console.log("New user post.");
-
-    // get post data
-    const data = req.body;
-    if (!data.name){
-        console.error("Improper request body format");
-        res.status(400).send("Improper request body format.\n");
-        return;
-    }
-
-    // log request data
-    console.log("Recieved:", data);
-    
-    // add to user list
-    const currDate = new Date();
-    const currTime = currDate.getTime();
-    const newUser = {
-        name: data.name,
-        lastOnline: currTime,
-        status: "online",
-    };
-    userList.push(newUser);
-    const userID = userList.length - 1;
-
-    // send response
-    console.log("Sending success\n");
-    res.status(200).json({id: userID});
 });
 
 //
@@ -156,6 +133,31 @@ async function getUserList(){
     return object.users;
 }
 
+async function sendHeartbeat() {
+    try {
+        const res = await fetch(HEARTBEAT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                service: "status-service",
+                timestamp: Date.now()
+            })
+        });
+
+        if (!res.ok) {
+            console.error("Heartbeat failed with status", res.status);
+            monitorServiceStatus = "offline";
+            return;
+        }
+
+        monitorServiceStatus = "online";
+        console.log("Heartbeat OK, monitorServiceStatus =", monitorServiceStatus);
+    } catch (err) {
+        console.error("Heartbeat error:", err);
+        monitorServiceStatus = "offline";
+    }
+}
+
 async function init(){
     userList = await getUserList();
     console.log("Data init complete:", userList);
@@ -168,6 +170,8 @@ async function init(){
             console.log("Server listening on port " + port + "\n");
         }
     });
+
+    sendHeartbeat();
 }
 
 var userList;
@@ -178,4 +182,5 @@ const oneMin = 1000 * 60;
 const interval = setInterval(() => {
     updateStatus();
     writeUserList();
+    sendHeartbeat();
 }, oneMin);

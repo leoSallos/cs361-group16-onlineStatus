@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Status Dashboard</title>
+    <link rel="stylesheet" href="status.css">
+</head>
+
+<body>
+    <div class="page">
+        <header>
+            <h1>Online Status</h1>
+            <div class="controls">
+                <span class="timestamp" id="last-updated">Last update: --</span>
+            </div>
+        </header>
+
+        <main>
+            <section class="board-section">
+                <div id="pixel-grid" class="pixel-grid"></div>
+            </section>
+
+            <section class="legend-section">
+                <h2>Legend</h2>
+                <div class="legend-row">
+                    <div class="pixel pixel-online"></div>
+                    <span>Online</span>
+                </div>
+
+                <div class="legend-row">
+                    <div class="pixel pixel-offline"></div>
+                    <span>Offline</span>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="status.js"></script>
+</body>
+</html>
